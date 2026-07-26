@@ -50,7 +50,8 @@ cx, cy, tx, ty, r_c, v_c, a = st.session_state.computer.step_simulation(120.0)
 
 # 5. Skapa interaktiv webbgraf via Plotly (Ersätter Matplotlib/PyQtGraph)
 fig = go.Figure()
-angles = np.linspace(0, 2*np.pi, 200)
+angles = np.linspace(0, 2 * np.pi, 200)
+body = st.session_state.computer.body
 
 # Rita banbanorna
 fig.add_trace(go.Scatter(x=body.r1*np.cos(angles), y=body.r1*np.sin(angles), mode='lines', line=dict(color='#4f5b66', width=1, dash='dot'), name="Parking Orbit"))
