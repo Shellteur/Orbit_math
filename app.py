@@ -83,3 +83,9 @@ with col2:
 
 # Automatisk uppdatering av webbsidan
 st.button("🔄 Uppdatera Telemetri / Nästa tidssteg")
+
+# Skapar en snygg fällbar meny längst ner för din tavla
+st.markdown("---")
+with st.expander("📐 Visa matematiska formler och fysikaliska härledningar"):
+    st.image("derivation.jpg", caption="Hohmann-transfer och Vis-Viva beräkningar", use_container_width=True)
+
