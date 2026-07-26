@@ -2,6 +2,8 @@ import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
 from orbital_math import CelestialBody, MissionController, MissionState
+from streamlit_autorefresh import st_autorefresh
+
 
 st.set_page_config(page_title="NASA Mission Control", layout="wide", initial_sidebar_state="expanded")
 st.title("🛰️ NASA Flight Dynamics & Hohmann Simulation")
@@ -45,7 +47,10 @@ if st.sidebar.button("🚀 PÅBÖRJA NYTT UPPDRAG", use_container_width=True):
     if st.session_state.computer.active_phase == MissionState.HOLD:
         st.session_state.computer.active_phase = MissionState.WAITING_WINDOW
 
-# 4. Uppdatera fysiken (Kör ett steg framåt i tiden vid varje sidladdning)
+
+
+# # 4. Uppdatera fysiken (Kör ett steg framåt i tiden vid varje sidladdning)
+st_autorefresh(interval=500, key="data_refresh")
 cx, cy, tx, ty, r_c, v_c, a = st.session_state.computer.step_simulation(120.0)
 
 # 5. Skapa interaktiv webbgraf via Plotly (Ersätter Matplotlib/PyQtGraph)
