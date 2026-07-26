@@ -5,8 +5,8 @@ from orbital_math import CelestialBody, MissionController, MissionState
 from streamlit_autorefresh import st_autorefresh
 
 
-st.set_page_config(page_title="NASA Mission Control", layout="wide", initial_sidebar_state="expanded")
-st.title("🛰️ NASA Flight Dynamics & Hohmann Simulation")
+st.set_page_config(page_title="Hohmann", layout="wide", initial_sidebar_state="expanded")
+st.title("Hohmann Simulation")
 
 # 1. Initiera planetprofiler
 profiles_db = {
@@ -23,25 +23,30 @@ if 'computer' not in st.session_state or st.session_state.current_body != select
     st.session_state.computer = MissionController(profiles_db[selected_body])
     st.session_state.current_body = selected_body
 
-# 3. Kontrollknappar i sidomenyn
-st.sidebar.markdown("### 🕹️ Flight Commands")
+# KORRIGERAD MANUELL OVERRIDE: Räknar ut banans rotation i realtid
 if st.sidebar.button("🚨 MANUELL OVERRIDE (BURN)", use_container_width=True):
     from orbital_math import Orbit
     comp = st.session_state.computer
+    
+    # Hämta farkostens exakta nuvarande vinkel i rymden just nu
+    cx_angle = (comp.craft.orbit.omega + comp.craft.true_anomaly) % (2 * np.pi)
+    
     if comp.active_phase == MissionState.WAITING_WINDOW:
         comp.active_phase = MissionState.TRANSFERRING
         comp.transfer_timer = 0.0
         comp.craft.spent_delta_v += comp.dv1
-        cx_angle = (comp.craft.orbit.omega + comp.craft.true_anomaly) % (2 * np.pi)
-        comp.craft.orbit = Orbit(comp.body.gm, comp.a_t, comp.e_t, cx_angle)
+        # Periapsis (lägsta punkten) måste ligga exakt där farkosten står nu
+        comp.craft.orbit = Orbit(comp.body.gm, comp.a_t, comp.e_t, argument_of_periapsis=cx_angle)
         comp.craft.mean_anomaly = 0.0
-    elif comp.active_phase == MissionState.WAITING_RETURN:
+        
+    elif comp.active_phase == MissionState.WAITING_RETURN or comp.active_phase == MissionState.TRANSFERRING:
         comp.active_phase = MissionState.RETURNING
         comp.transfer_timer = 0.0
         comp.craft.spent_delta_v += comp.dv1
-        cx_angle = (comp.craft.orbit.omega + comp.craft.true_anomaly) % (2 * np.pi)
-        comp.craft.orbit = Orbit(comp.body.gm, comp.a_t, comp.e_t, cx_angle - np.pi)
+        # Apoapsis (högsta punkten) är där farkosten står nu. Vrid periapsis 180 grader (pi) bort!
+        comp.craft.orbit = Orbit(comp.body.gm, comp.a_t, comp.e_t, argument_of_periapsis=cx_angle - np.pi)
         comp.craft.mean_anomaly = np.pi
+
 
 if st.sidebar.button("🚀 PÅBÖRJA NYTT UPPDRAG", use_container_width=True):
     if st.session_state.computer.active_phase == MissionState.HOLD:
