@@ -65,7 +65,7 @@ fig.add_trace(go.Scatter(x=[tx], y=[ty], mode='markers', marker=dict(size=10, co
 fig.update_layout(template="plotly_dark", height=650, width=650, showlegend=True, xaxis=dict(scaleanchor="y", scaleratio=1))
 
 # Layout-uppdelning på webbsidan
-col1, col2 = st.columns()
+col1, col2 = st.columns(2)
 with col1:
     st.plotly_chart(fig, use_container_width=True)
 
